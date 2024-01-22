@@ -1,8 +1,6 @@
 # Automatização-o-Ramo-estudantil-IEEE-UFJF
 
-  Este repositório tem como objetivo armazenar a fim de auxiliar no desenvolvimento do projeto da automatização do ramo Estudantil IEEE UFJF.
-Visando a saúde dos colaboradores o projeto tem como principal ponto forte a comunicação WIFI entre membro e saidas do ramo.
-Após uma grande pesquisa, foi estudado sobre a utilização do motor 17hs16-2004s1, abaixo podemos ver a sequência de ligamento.
+  Este repositório tem como objetivo armazenar informações para auxiliar no desenvolvimento do projeto de automação do ramo Estudantil IEEE UFJF. Com foco na saúde dos colaboradores, o projeto destaca-se pelo uso da comunicação Wi-Fi entre os membros e as saídas do ramo. Após uma extensa pesquisa, foram analisadas as possibilidades de utilização do motor 17HS16-2004S1. Abaixo, apresentamos a sequência de acionamento.
 
 |Step | N1| N2| N3| N4|
 |-----|---|---|---|---|
@@ -12,7 +10,9 @@ Após uma grande pesquisa, foi estudado sobre a utilização do motor 17hs16-200
 |   4 |  1|  0|  0|  1|
 
 
-  Para a alteração de cada passo, a tabela é alterada pelo tempo determinado pelo Step, cada step tem 4 váriaveis que são os polos do motor de passo bifásico, logo a cada status obrigatóriamente enviáremos dois polos positivos no motor e dois neutros, onde devemos tomar cuidado para não energizarmos a mesma bobina. Para o reconhecimento da mesma foi encontrado primeiramente duas bobinas onde os polos estão em série, a partir dela definimos a sequência de acionamento nos baseando do Datasheat do 17hs16. Todo o projeto que envolve motores e tensôes de saída,a tensão operada é de 12 Volt's.
+  Para a alteração de cada passo, a tabela é modificada pelo tempo determinado pelo Step. Cada step possui 4 variáveis, que representam os polos do motor de passo bifásico. Portanto, em cada estado, é necessário enviar obrigatoriamente dois polos positivos e dois neutros para o motor, sendo crucial evitar a energização simultânea da mesma bobina.
+
+Para identificar as bobinas, inicialmente, encontramos duas bobinas com os polos em série. Com base nelas, definimos a sequência de acionamento, seguindo as orientações do Datasheet do 17HS16. Em todo o projeto que envolve motores e tensões de saída, a tensão operacional é de 12 volts.
   
 |Saida Ponte H |Cores referência |
 |-------------|------------|
@@ -33,14 +33,13 @@ Após uma grande pesquisa, foi estudado sobre a utilização do motor 17hs16-200
 |TERCEIRO FLAT | Verde|
 |QUARTO FLAT| Azul|
 
-Vale ressaltar que á orientação é o Flat Vermelho. E a partir dele,o primeiro fio da bobina ser orientado para a Esquerda. 
-Vermelho:
+Vale ressaltar que a orientação é o Flat Vermelho. A partir dele, o primeiro fio da bobina deve ser orientado para a esquerda. Vermelho:
 1 A+
 2 B+
 3 A-
 4 B-
 
-  Para  a ligação do projeto está sendo utilizada a Ponte H para o controle do sentido do giro do motor. O código utilizado basea-se nas linguagens HTML e C+ e a comunicação vai ser feita através de comunicação de uma site criado pelos próprios programadores do IEEE. 
+  Para a conexão do projeto, está sendo utilizada uma Ponte H para controlar o sentido de rotação do motor. O código utilizado baseia-se nas linguagens HTML e C++, e a comunicação será realizada por meio de um site criado pelos próprios programadores do IEEE.
 
 Modelo de ponte H usado no projeto:
 L298N
@@ -61,12 +60,9 @@ tspecs = 1/N*6 [s]
 
 17HS16
 
-Através de medições realizadas no dia 16 de Novembro de 2023 utilizando 480W, 127V encontramos 3.17A e e 9.08V 28,78W de consumo com o motor ligado.
-foi observado o aumento  da temperatura na Ponte H
+Através de medições realizadas no dia 16 de novembro de 2023, utilizando 480W a 127V, encontramos um consumo de 3.17A e 9.08V, totalizando 28,78W com o motor ligado. Foi observado um aumento na temperatura na Ponte H.
 
-Já com o Motor EM-257, aplicamos uma tensão de 12V, que ao acionar o motor ela cai para 10,72V e entrega 1,40A. 
-Mostrando uma rotação continua interresante mas com um comportamento anormal de aumento temperatura, tanto na carcaça do motor quanto no dissipador de temperatura da Ponte H.
-Para tentar reduzir a temperatura foi utilizado o método de desenvolvimento do motor; listado abaixo:
+Já com o Motor EM-257, aplicamos uma tensão de 12V, que ao acionar o motor, ela cai para 10,72V e entrega 1,40A. Mostrando uma rotação contínua interessante, porém com um comportamento anormal de aumento de temperatura, tanto na carcaça do motor quanto no dissipador de temperatura da Ponte H. Para tentar reduzir a temperatura, foi utilizado o método de desenvolvimento do motor, listado abaixo:
 
 Para o desenvolvimento no motor EM-257, foram testados 3 tempos de passos e observados os seguintes valores
 |Tempo em Mile Segundos| Corrente (A)| Tensão(V)|
@@ -75,20 +71,19 @@ Para o desenvolvimento no motor EM-257, foram testados 3 tempos de passos e obse
 |8  mS | 1,40A |10,72V|
 |4 mS  | 1,16A |10,98V|
 
-Onde foi notado que no desenvolvimento de passo 4mS foi obtido os melhores resultantes. 
+Onde foi notado que no desenvolvimento de passo 4mS foi obtido os melhores resultados. 
 
-Para o Cochecimento de controle de acesso da porta, esta sendo discutindo a possibilidade de cadastro de IP armazenado em vetores do 
+Para o conhecimento de controle de acesso da porta, está sendo discutida a possibilidade de cadastrar o IP armazenado em vetores.
 
-para o Desenvolvimento do Código vamos definir as varáveis 
+Para o desenvolvimento do código, vamos definir as variáveis.
 
-O sensor de refletância está funcionando pela saída de pull-up do ESP no pino D8, utilizando o fio de cor preta conectado no pino D8 e a alimentação do sensor é feita pelo fio marrom no +3V e o fio azul no GND.
+O sensor de refletância está operando pela saída de pull-up do ESP no pino D8, utilizando o fio de cor preta conectado no pino D8. A alimentação do sensor é feita pelo fio marrom no +3V, e o fio azul é conectado ao GND.
 _____________________________________________________________________________________
-A partir dos teste realizados pelo motor EM-257, partimos para a montagem da condicional onde usamos botões para o controle de sentido de giro de acordo com o angulo que nós temos padronizados. estipulamos um angulo de 180º de rotação que da 200' Passos.
+A partir dos testes realizados com o motor EM-257, avançamos para a montagem da condição, na qual utilizamos botões para controlar o sentido de rotação de acordo com o ângulo padronizado. Estipulamos um ângulo de 180º de rotação, equivalente a 200 passos.
 _____________________________________________________________________________________
 
-Código. 
-Para o desenvolvimento do Código foi escolhiodo a utilização do microcontrolador ESP-8266. onde batemos de frente com as limitações das portas, é muito estranho se falar nisso quando podemos trabalhar com arduino Mega com o esp32 como shield, o projeto ta bem evuluido e pinagem atual é a seguinte. 
-
+Código.
+Para o desenvolvimento do código, foi escolhida a utilização do microcontrolador ESP-8266, onde nos deparamos com as limitações das portas. É um tanto peculiar mencionar isso quando poderíamos trabalhar com Arduino Mega e ESP32 como shield. O projeto está bastante evoluído, e a pinagem atual é a seguinte:
 
 |PORTA NODE MCU|LIGAÇÃO|MOTOR|
 |-------------|------------|---------|
@@ -103,7 +98,7 @@ Para o desenvolvimento do Código foi escolhiodo a utilização do microcontrola
 |D8 |LedSinal | |
 
 
-um coisa muito interessante é o trabalho com memória de dados, vamos usar o tipo de dado bool, que carregam o nome Peçastatus com oa primeira letra maiscula e Status com s minusculo. temos 3 variaveis bool. Temos que ter muita atenção onde mudar a status das variáveis. muito pica tambem é entender que estamos mudando as variáveis com o tipo true e false. muitatenção a esta parte, o erro pode acarretar na má interpretação do código.
+Uma coisa muito interessante é o trabalho com memória de dados. Vamos usar o tipo de dado 'bool', que carrega o nome 'PecaStatus' com a primeira letra maiúscula e 'Status' com 's' minúsculo. Temos 3 variáveis 'bool'. Devemos ter muita atenção ao mudar o status das variáveis. É importante destacar que estamos utilizando os valores 'true' e 'false'. Muita atenção a esta parte, pois erros podem resultar em má interpretação do código.
 
 |Tipo de dados| Nome Variável| NIVEL(V)|
 |------------|---------|----------|
@@ -111,6 +106,6 @@ um coisa muito interessante é o trabalho com memória de dados, vamos usar o ti
 |bool | Portastatus |LOW|
 
 _____________________________________________________________________________________
-obeservação realizada no dia 8 de dezembro foi que o interruptor não funciona no código, possivelmente seja alguma questão dentro do código. Possivelmente seja a questão de estamos errando seja nos if's, pois ele não tem um else e talvez não tenha a condição da ação, é estranhos mas vai demandar tempode estudo
+Observação realizada no dia 8 de dezembro foi que o interruptor não funciona no código, possivelmente seja alguma questão dentro do código. Talvez a razão esteja nos 'if's, pois não há um 'else' e talvez falte a condição para a ação. É estranho, mas demandará tempo de estudo.
 
 
