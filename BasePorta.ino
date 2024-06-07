@@ -53,6 +53,7 @@ void setup() {
   delay(100);
 
   // Configura Handles do Server e Inicia Server
+      //Nesta gunção aqui, toda vez que o botão é apertado no site ele chama essa função que atualiza o estatus da variável.
   server.on("/", handle_OnConnect);
   server.on("/ledon", handle_ledon);
   server.on("/ledoff", handle_ledoff);
@@ -109,7 +110,7 @@ void handle_ledoff() {
 void handle_NotFound() {
   server.send(404, "text/plain", "Not found");
 }
-
+//Aqui estamos montando um site como uma string que ficará armazenado no IP do Roteador que conectamos.
 String SendHTML(bool led, bool lampada) {
   String ptr = "<!DOCTYPE html>\n";
   ptr += "<html>\n";
@@ -134,3 +135,4 @@ String SendHTML(bool led, bool lampada) {
   ptr += "</html>\n";
   return ptr;
 }
+// muito interessante observar que o site é todo um bloco de String que que adicionamos itens com funções.
