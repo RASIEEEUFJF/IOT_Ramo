@@ -107,5 +107,9 @@ Uma coisa muito interessante é o trabalho com memória de dados. Vamos usar o t
 
 _____________________________________________________________________________________
 Observação realizada no dia 8 de dezembro foi que o interruptor não funciona no código, possivelmente seja alguma questão dentro do código. Talvez a razão esteja nos 'if's, pois não há um 'else' e talvez falte a condição para a ação. É estranho, mas demandará tempo de estudo.
+_________________________________________________________________________________________
+
+#Continuidade.
+No dia 6 de Junho de 2024 Voltamos as manutenções a respeito do código de manutenção da porta do ramo, ond estamos desenvolvvendo a parte do site que será interativo com o código. Vale-se se ressaltar que como o mesmo é uma pagina armazenada no servidor local o esmo esta sendo desenvolvido em HTML, se prenda na parte onde que o processo atual temos um código que representa a interaçao entre servido e o fisico do projeto, que são lampadas, portas e sensores. 
 
 
