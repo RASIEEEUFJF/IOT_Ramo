@@ -27,11 +27,13 @@ const char* password = "REieeeUFJF2023";  // Senha Wifi
 // Variáveis de Server e Status do LED
 ESP8266WebServer server(80);
 bool LEDstatus = LOW;
-
+int luz = 1;
+bool lampada_status = LOW;
 void setup() {
   // Inicia Serial e LED
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(luz,OUTPUT);
 
   // Inicia Conexão WiFi
   WiFi.mode(WIFI_STA);
@@ -54,6 +56,8 @@ void setup() {
   server.on("/", handle_OnConnect);
   server.on("/ledon", handle_ledon);
   server.on("/ledoff", handle_ledoff);
+  server.on("/lampadaon", handle_lampadaon);
+  server.on("/lampadaoff", handle_lampadaoff);
   server.onNotFound(handle_NotFound);
   server.begin();
   Serial.println("Servidor HTTP iniciado!");
@@ -64,32 +68,49 @@ void loop() {
   server.handleClient();    // Faz o Handle
   if (LEDstatus)            // Checa se LED deve acender
     digitalWrite(LED_BUILTIN, HIGH);  
-  else
+    
+   else
     digitalWrite(LED_BUILTIN, LOW);
+    
+
+  if(lampada_status)
+    digitalWrite(luz,HIGH);
+  else
+    digitalWrite(luz,LOW);
+
 }
 
 // FUNÇÕES HANDLE PARA HTML SERVER
 
 void handle_OnConnect() {
-  LEDstatus = LOW;
-  server.send(200, "text/html", SendHTML(false));
+  server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
 }
 
 void handle_ledon() {
   LEDstatus = HIGH;
-  server.send(200, "text/html", SendHTML(true));
+  server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+}
+
+void handle_lampadaon(){
+  lampada_status = HIGH;
+  server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+}
+
+void handle_lampadaoff(){
+  lampada_status = LOW;
+  server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
 }
 
 void handle_ledoff() {
   LEDstatus = LOW;
-  server.send(200, "text/html", SendHTML(false));
+  server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
 }
 
 void handle_NotFound() {
   server.send(404, "text/plain", "Not found");
 }
 
-String SendHTML(uint8_t led) {
+String SendHTML(bool led, bool lampada) {
   String ptr = "<!DOCTYPE html>\n";
   ptr += "<html>\n";
   ptr += "<head>\n";
@@ -97,8 +118,13 @@ String SendHTML(uint8_t led) {
   ptr += "</head>\n";
   ptr += "<body>\n";
   ptr += "<h1>PORTA</h1>\n";
-  ptr += "<p>OLÁ, TRABALHE AQUI PARA ABRIR E FECHAR A PORTA.</p>\n";
+  ptr += "<p>OI, TRABALHE AQUI PARA ABRIR E FECHAR A PORTA.</p>\n";
   ptr += "<form method=\"get\">\n";
+  
+  if (lampada)
+     ptr += "<input type=\"button\" value=\"APAGAR LAMPADA\" onclick=\"window.location.href='/lampadaoff'\">\n";
+  else
+      ptr += "<input type=\"button\" value=\"ACENDER LAMPADA\" onclick=\"window.location.href='/lampadaon'\">\n";
   if (led)
     ptr += "<input type=\"button\" value=\"ABRIR PORTA\" onclick=\"window.location.href='/ledoff'\">\n";
   else
