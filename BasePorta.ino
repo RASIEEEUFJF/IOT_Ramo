@@ -1,59 +1,51 @@
-/*
-      Programa Aciona LED via WiFI
-      Conexão do NodeMCU no Wifi e aciona o Built-In LED por uma página Http local
-
-      Componentes:
-        - NodeMCU ESP8266
-
-      Versão 1.0 - Versão inicial via HTTP Local - 28/Jan/2021
-
- *    * Criado por Cleber Borges - FunBots - @cleber.funbots  *     *
-
-      Instagram: https://www.instagram.com/cleber.funbots/
-      Facebook: https://www.facebook.com/cleber.funbots
-      YouTube: https://www.youtube.com/channel/UCKs2l5weIqgJQxiLj0A6Atw
-      Telegram: https://t.me/cleberfunbots
+/*código de desenvolvimento do projeto de IOT do capítulo de robótica eletrônica do IEEE da UFJF 
 
 */
-
 // Inclusão das bibliotecas
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
 // Configração do WiFi
-const char* ssid = "IEEE";  // SSID Wifi
-const char* password = "REieeeUFJF2023";  // Senha Wifi
+char ssid []= "IEEE";  // SSID Wifi
+char senha []= "REieeeUFJF2023";  // Senha Wifi
 
 // Variáveis de Server e Status do LED
-ESP8266WebServer server(80);
+ESP8266WebServer server(80); 
+
 bool LEDstatus = LOW;
-int luz = 1;
+int luz = 5; // variável lâmpada 
+// afim de evitar error evite usar as portas genéricas do nodemcu 1,2,3,15,13
 bool lampada_status = LOW;
-void setup() {
-  // Inicia Serial e LED
-  Serial.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(luz,OUTPUT);
+int conexao = 115200;
 
-  // Inicia Conexão WiFi
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.println("");
+void conectarWiFi(char SSID[], char SENHA[]){
+  
+  Serial.print("Conectando a rede");
+  Serial.println(SSID);
 
-  // Aguarda Conexão e Informa IP
-  while (WiFi.status() != WL_CONNECTED) {
+  WiFi.begin(SSID, SENHA);
+  while(WiFi.status () != WL_CONNECTED){
     delay(500);
     Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Rede WiFi: ");
-  Serial.println(ssid);
-  Serial.print("Endereço IP: ");
+    }
+    
+  Serial.println(" ");
+  Serial.println("WiFi Conectado");
+  Serial.println("Endereço de IP: ");
   Serial.println(WiFi.localIP());
-  delay(100);
+  }
 
+
+void setup(){
+  // Inicia Serial e LED
+  Serial.begin(conexao);
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(luz, OUTPUT); 
+  Serial.println("iniciado");
+  conectarWiFi(ssid, senha);
   // Configura Handles do Server e Inicia Server
-      //Nesta gunção aqui, toda vez que o botão é apertado no site ele chama essa função que atualiza o estatus da variável.
+      //Nesta função aqui, toda vez que o botão é apertado no site ele chama essa função que atualiza o estatus da variável.
+  
   server.on("/", handle_OnConnect);
   server.on("/ledon", handle_ledon);
   server.on("/ledoff", handle_ledoff);
@@ -62,10 +54,10 @@ void setup() {
   server.onNotFound(handle_NotFound);
   server.begin();
   Serial.println("Servidor HTTP iniciado!");
-
 }
-
-void loop() {
+  
+void loop(){
+  //Serial.println("teste");
   server.handleClient();    // Faz o Handle
   if (LEDstatus)            // Checa se LED deve acender
     digitalWrite(LED_BUILTIN, HIGH);  
