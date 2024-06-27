@@ -3,6 +3,7 @@ Código Desenvolvido para realizar teste Com status de variáveis de armazenamen
 código simples e fácil e funcionando de maneira correta
 o circuito tem dois botoes um na porta D1 e Outro na porta D2 e um LED na Porta D0
 D4----------RESITOR------------LED--------GND
+RELÉ É 5 VOLTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 */
 
