@@ -13,7 +13,8 @@ char senha []= "REieeeUFJF2023";  // Senha Wifi
 ESP8266WebServer server(80); 
 
 bool LEDstatus = LOW;
-int luz = 5; // variável lâmpada 
+int luz = 5;// variável lâmpada
+int luz2 = 4; 
 // afim de evitar error evite usar as portas genéricas do nodemcu 1,2,3,15,13
 bool lampada_status = LOW;
 int conexao = 115200;
@@ -39,7 +40,7 @@ void conectarWiFi(char SSID[], char SENHA[]){
 void setup(){
   // Inicia Serial e LED
   Serial.begin(conexao);
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(luz2, OUTPUT);
   pinMode(luz, OUTPUT); 
   Serial.println("iniciado");
   conectarWiFi(ssid, senha);
@@ -60,16 +61,24 @@ void loop(){
   //Serial.println("teste");
   server.handleClient();    // Faz o Handle
   if (LEDstatus)            // Checa se LED deve acender
-    digitalWrite(LED_BUILTIN, HIGH);  
+    digitalWrite(luz2, HIGH);  
     
    else
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(luz2, LOW);
+
     
 
   if(lampada_status)
+  {
     digitalWrite(luz,HIGH);
+    digitalWrite(luz2, LOW);
+  }
   else
+  {
     digitalWrite(luz,LOW);
+    digitalWrite(luz2, LOW);
+  }
+    
 
 }
 
@@ -107,14 +116,41 @@ String SendHTML(bool led, bool lampada) {
   String ptr = "<!DOCTYPE html>\n";
   ptr += "<html>\n";
   ptr += "<head>\n";
+  ptr += "<style>\n";
+ptr += "    body {\n";
+ptr += "        font-family: Arial, sans-serif;\n";
+ptr += "        background-color: #b9ffff;\n";
+ptr += "        text-align: center;\n";
+ptr += "    }\n";
+ptr += "    h1 {\n";
+ptr += "        color: #333;\n";
+ptr += "    }\n";
+ptr += "    p {\n";
+ptr += "        color: #666;\n";
+ptr += "    }\n";
+ptr += "    input[type='button'] {\n";
+ptr += "        background-color: #086ca4;\n";
+ptr += "        border: none;\n";
+ptr += "        color: white;\n";
+ptr += "        padding: 10px 20px;\n";
+ptr += "        text-align: center;\n";
+ptr += "        text-decoration: none;\n";
+ptr += "        display: inline-block;\n";
+ptr += "        font-size: 16px;\n";
+ptr += "        border-radius: 5px;\n";
+ptr += "        margin: 10px;\n";
+ptr += "    }\n";
+ptr += "</style>\n";
+
+
   ptr += "<title>Controle do LED</title>\n";
   ptr += "</head>\n";
   ptr += "<body>\n";
-  ptr += "<h1>PORTA</h1>\n";
-  ptr += "<p>OI, TRABALHE AQUI PARA ABRIR E FECHAR A PORTA.</p>\n";
+  ptr +=" <h1><img src=https://th.bing.com/th/id/OIP.K3it6ygEsOPHdB23WcRuEAHaCd?rs=1&pid=ImgDetMain><h1>";
+  ptr += "<h1>Gerenciamento via IOT</h1>\n";
+  ptr += "<p>Botoes.</p>\n";
   ptr += "<form method=\"get\">\n";
-  
-  if (lampada)
+   if (lampada)
      ptr += "<input type=\"button\" value=\"APAGAR LAMPADA\" onclick=\"window.location.href='/lampadaoff'\">\n";
   else
       ptr += "<input type=\"button\" value=\"ACENDER LAMPADA\" onclick=\"window.location.href='/lampadaon'\">\n";
