@@ -115,4 +115,6 @@ No dia 6 de Junho de 2024 Voltamos as manutenções a respeito do código de man
 #Continuidade.
 No dia 27 de junho voltamos a manutenção a respeito do processo, foi observado que o relê utilizado para o controle do projeto tem que ser alimentado com a tensão de 5 volt's. Podemos observa que o o projeto possivelmente tera que ser alimentado com carregador de celular na porta Vin do NodeMCU. onde aravés do processo iremos alimentar o resto na porta 3 Volt's do NodeMC. onde testamos o Buzze.
 
+#Continuidade.
+No dia 18 de julho, foi criado o código base para acionar a fechadura. Com a fechadura em mãos, foram feitas as ligações necessárias utilizando arduino, ponte h, jumpers e a fonte de alimentação. Também se teve avanço na criação do site. Foi interessante observar que os métodos utilizados não entregou 12V a fechadura, assim, ela não acionava. Para resolver esse problema foi colocado uma fase na porta 5 do ESP (por meio da ponte H) e o terra foi conectado direto na fonte, evitando a passagem no capacitor o que aumentou a tensão obtida. No entanto não chegamos ao valor esperado de 12V, mesmo assim, a fechadura aciona, uma vez que a potência é a esperada.
 
