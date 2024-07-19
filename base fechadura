@@ -1,0 +1,36 @@
+int botao = 10;
+int frente = 12;
+int tras = 11;
+int buzzer = 9;
+bool stat = LOW;
+
+
+void setup() {
+  pinMode(botao,INPUT_PULLUP);  
+  pinMode(frente,OUTPUT);
+  pinMode(tras,OUTPUT);
+  pinMode(buzzer,OUTPUT);
+  Serial.begin(9600);
+
+}
+
+void loop() {
+  if(digitalRead(10)==LOW){
+    digitalWrite(frente,HIGH);
+    digitalWrite(tras,LOW);
+    digitalWrite(buzzer, HIGH);
+    stat = HIGH;
+    Serial.println(stat);
+    Serial.println("alto");
+    delay(1500);
+  }
+
+  else if(digitalRead(10)==HIGH){
+    digitalWrite(frente,LOW);
+    digitalWrite(tras,LOW);
+    digitalWrite(buzzer, LOW);
+    stat = LOW;
+    Serial.println(stat);
+    Serial.println("baixo");
+}
+}
