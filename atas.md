@@ -110,7 +110,7 @@ Observação realizada no dia 8 de dezembro foi que o interruptor não funciona 
 _________________________________________________________________________________________
 
 #Continuidade.
-No dia 6 de Junho de 2024 Voltamos as manutenções a respeito do código de manutenção da porta do ramo, ond estamos desenvolvvendo a parte do site que será interativo com o código. Vale-se se ressaltar que como o mesmo é uma pagina armazenada no servidor local o esmo esta sendo desenvolvido em HTML, se prenda na parte onde que o processo atual temos um código que representa a interaçao entre servido e o fisico do projeto, que são lampadas, portas e sensores. 
+No dia 6 de Junho de 2024 Voltamos as manutenções a respeito do código de manutenção da porta do ramo, onde estamos desenvolvendo a parte do site que será interativo com o código. Vale-se se ressaltar que como o mesmo é uma pagina armazenada no servidor local o esmo esta sendo desenvolvido em HTML, se prenda na parte onde que o processo atual temos um código que representa a interaçao entre servido e o fisico do projeto, que são lampadas, portas e sensores. 
 
 #Continuidade.
 No dia 27 de junho voltamos a manutenção a respeito do processo, foi observado que o relê utilizado para o controle do projeto tem que ser alimentado com a tensão de 5 volt's. Podemos observa que o o projeto possivelmente tera que ser alimentado com carregador de celular na porta Vin do NodeMCU. onde aravés do processo iremos alimentar o resto na porta 3 Volt's do NodeMC. onde testamos o Buzze.
