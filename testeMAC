@@ -1,0 +1,290 @@
+/*código de desenvolvimento do projeto de IOT do capítulo de robótica eletrônica do IEEE da UFJF */
+
+// Inclusão das bibliotecas
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <stdint.h>
+
+// Definição de Constante e Array de Endereços MAC
+#define NUM_DISPOSITIVOS 3
+
+uint8_t macList[NUM_DISPOSITIVOS][6] = {
+    {0xA7,0x16,0xD0,0xA6,0x45,0x3B},
+    {0xB8,0x17,0xE0,0xA7,0x55,0x3C},
+    {0xC9,0x18,0xD0,0xA8,0x65,0x3D}
+};
+
+bool mac_conhecido;
+
+// Classe para gerenciar endereços MAC conhecidos
+class ClientMacaddress {
+public:
+    ClientMacaddress(uint8_t macList[][6], int numDispositivos) {
+        this->macList = macList;
+        this->numDispositivos = numDispositivos;
+    }
+
+    uint8_t* getAddr(WiFiClient client) {
+        static uint8_t mac[6];
+        client.macAddress(mac);
+        return mac;
+    }
+
+        bool isKnown(uint8_t* mac) {
+        for (int i = 0; i < numDispositivos; i++) {
+            bool match = true;
+            for (int j = 0; j < 6; j++) {
+                if (macList[i][j] != mac[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+    uint8_t (*macList)[6];
+    int numDispositivos;
+};
+
+ClientMacaddress clientMac(macList, NUM_DISPOSITIVOS);
+
+// Configuração do WiFi
+char ssid []= "IEEE";  // SSID Wifi
+char senha []= "REieeeUFJF2023";  // Senha Wifi
+
+// Variáveis de Server e Status do LED
+ESP8266WebServer server(80); 
+
+bool LEDstatus = LOW;
+int luz = 5; // variável lâmpada
+int luz2 = 4; 
+// afim de evitar error evite usar as portas genéricas do nodemcu 1,2,3,15,13
+bool lampada_status = LOW;
+int conexao = 115200;
+
+void conectarWiFi(char SSID[], char SENHA[]){
+  
+  Serial.print("Conectando a rede");
+  Serial.println(SSID);
+
+  WiFi.begin(SSID, SENHA);
+  while(WiFi.status () != WL_CONNECTED){
+    delay(500);
+    Serial.print(".");
+    }
+    
+  Serial.println(" ");
+  Serial.println("WiFi Conectado");
+  Serial.println("Endereço de IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void printMacAddress(uint8_t mac[6]) {
+    for (int i = 0; i < 6; i++) {
+        Serial.printf("%02X", mac[i]);
+        if (i < 5) {
+            Serial.print(":");
+        }
+    }
+    Serial.println();
+}
+
+void setup(){
+  // Inicia Serial e LED
+  Serial.begin(conexao);
+  pinMode(luz2, OUTPUT);
+  pinMode(luz, OUTPUT); 
+  Serial.println("iniciado");
+  conectarWiFi(ssid, senha);
+
+  // Imprime os endereços MAC
+  for (int i = 0; i < NUM_DISPOSITIVOS; i++) {
+      Serial.print("MAC Address ");
+      Serial.print(i + 1);
+      Serial.print(": ");
+      printMacAddress(macList[i]);
+  }
+
+  // Configura Handles do Server e Inicia Server
+  server.on("/", handle_OnConnect);
+  server.on("/ledon", handle_ledon);
+  server.on("/ledoff", handle_ledoff);
+  server.on("/lampadaon", handle_lampadaon);
+  server.on("/lampadaoff", handle_lampadaoff);
+  server.onNotFound(handle_NotFound);
+  server.begin();
+  Serial.println("Servidor HTTP iniciado!");
+}
+  
+void loop(){
+  server.handleClient();    // Faz o Handle
+  if (LEDstatus)            // Checa se LED deve acender
+    digitalWrite(luz2, HIGH);  
+  else
+    digitalWrite(luz2, LOW);
+
+  if(lampada_status) {
+    digitalWrite(luz, HIGH);
+    digitalWrite(luz2, LOW);
+  } else {
+    digitalWrite(luz, LOW);
+    digitalWrite(luz2, LOW);
+  }
+}
+
+// FUNÇÕES HANDLE PARA HTML SERVER
+
+void handle_OnConnect() {
+  WiFiClient client = server.client();
+  uint8_t *m = clientMac.getAddr(client);
+  Serial.printf("Macaddress: %.2X:%.2X:%.2X:%.2X:%.2X:%.2X\n", m[0], m[1], m[2], m[3], m[4], m[5]);
+  mac_conhecido = clientMac.isKnown(m);
+
+  if(mac_conhecido) {
+    server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+  } else {
+    server.send(403, "text/html", "<h1>DISPOSITIVO NAO AUTORIZADO</h1>");
+  }
+}
+
+void handle_ledon() {
+  WiFiClient client = server.client();
+  uint8_t *m = clientMac.getAddr(client);
+  mac_conhecido = clientMac.isKnown(m);
+
+  if(mac_conhecido) {
+    LEDstatus = HIGH;
+    server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+  } else {
+    server.send(403, "text/html", "<h1>DISPOSITIVO NAO AUTORIZADO</h1>");
+  }
+}
+
+void handle_lampadaon(){
+  WiFiClient client = server.client();
+  uint8_t *m = clientMac.getAddr(client);
+  mac_conhecido = clientMac.isKnown(m);
+
+  if(mac_conhecido) {
+    lampada_status = HIGH;
+    server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+  } else {
+    server.send(403, "text/html", "<h1>DISPOSITIVO NAO AUTORIZADO</h1>");
+  }
+}
+
+void handle_lampadaoff(){
+  WiFiClient client = server.client();
+  uint8_t *m = clientMac.getAddr(client);
+  mac_conhecido = clientMac.isKnown(m);
+
+  if(mac_conhecido) {
+    lampada_status = LOW;
+    server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+  } else {
+    server.send(403, "text/html", "<h1>DISPOSITIVO NAO AUTORIZADO</h1>");
+  }
+}
+
+void handle_ledoff() {
+  WiFiClient client = server.client();
+  uint8_t *m = clientMac.getAddr(client);
+  mac_conhecido = clientMac.isKnown(m);
+
+  if(mac_conhecido) {
+    LEDstatus = LOW;
+    server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+  } else {
+    server.send(403, "text/html", "<h1>DISPOSITIVO NAO AUTORIZADO</h1>");
+  }
+}
+
+void handle_NotFound() {
+  server.send(404, "text/plain", "Not found");
+}
+
+// Função para enviar HTML ao cliente
+void run_html(WiFiClient client) {
+    String html_content = 
+    "<!DOCTYPE html><html>"
+    "<head><style media='screen' type='text/css'>"
+    "html{display:inline-block;margin:10px auto;text-align:center;}"
+    "</style></head>"
+    "<body>"
+    "<h1 style='font-size:40px'>Acionamento LED</h1>";
+    if(mac_conhecido) {
+        html_content += 
+        "<p><a href='/LED_ON'>"
+        "<button style='width:200px;font-size:80px'>ON</button>"
+        "</a></p>"
+        "<p><a href='/LED_OFF'>"
+        "<button style='width:200px;font-size:80px'>OFF</button>"
+        "</a></p>";
+    } else {
+        html_content += 
+        "<p style='color:red;font-size:40px'>DISPOSITIVO NAO AUTORIZADO</p>";
+    }
+    html_content += 
+    "</body>"
+    "</html>";
+
+    client.println(html_content);  
+}
+
+// Função para montar o conteúdo HTML
+String SendHTML(bool led, bool lampada) {
+  String ptr = "<!DOCTYPE html>\n";
+  ptr += "<html>\n";
+  ptr += "<head>\n";
+  ptr += "<style>\n";
+  ptr += "    body {\n";
+  ptr += "        font-family: Arial, sans-serif;\n";
+  ptr += "        background-color: #b9ffff;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "    }\n";
+  ptr += "    h1 {\n";
+  ptr+= "        color: #333;\n";
+  ptr += "    }\n";
+  ptr += "    p {\n";
+  ptr += "        color: #666;\n";
+  ptr += "    }\n";
+  ptr += "    input[type='button'] {\n";
+  ptr += "        background-color: #086ca4;\n";
+  ptr += "        border: none;\n";
+  ptr += "        color: white;\n";
+  ptr += "        padding: 10px 20px;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "        text-decoration: none;\n";
+  ptr += "        display: inline-block;\n";
+  ptr += "        font-size: 16px;\n";
+  ptr += "        border-radius: 5px;\n";
+  ptr += "        margin: 10px;\n";
+  ptr += "    }\n";
+  ptr += "</style>\n";
+  ptr += "<title>Controle do LED</title>\n";
+  ptr += "</head>\n";
+  ptr += "<body>\n";
+  ptr += "<h1><img src=https://th.bing.com/th/id/OIP.K3it6ygEsOPHdB23WcRuEAHaCd?rs=1&pid=ImgDetMain><h1>";
+  ptr += "<h1>Gerenciamento via IOT</h1>\n";
+  ptr += "<p>Botoes.</p>\n";
+  // Continue com o restante do código HTML...
+  ptr += "<form method=\"get\">\n";
+   if (lampada)
+     ptr += "<input type=\"button\" value=\"APAGAR LAMPADA\" onclick=\"window.location.href='/lampadaoff'\">\n";
+  else
+      ptr += "<input type=\"button\" value=\"ACENDER LAMPADA\" onclick=\"window.location.href='/lampadaon'\">\n";
+  if (led)
+    ptr += "<input type=\"button\" value=\"ABRIR PORTA\" onclick=\"window.location.href='/ledoff'\">\n";
+  else
+    ptr += "<input type=\"button\" value=\"FECHAR PORTA\" onclick=\"window.location.href='/ledon'\">\n";
+  ptr += "</form>\n";
+  ptr += "</body>\n";
+  ptr += "</html>\n";
+  return ptr;
+}
+// muito interessante observar que o site é todo um bloco de String que que adicionamos itens com funções.
