@@ -1,0 +1,272 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+
+// Lista de endereços MAC permitidos
+const char* allowedMacAddresses[] = {
+  "FA:4:D9:6F:A2:C1",
+  "E2:9A:6F:6C:B1:2F",
+  "60:68:4E:A1:D6:74"  // Corrigido o "AI" para "A1"
+};
+
+// Função para verificar se um endereço MAC está na lista permitida
+bool isMacAddressAllowed(String macAddress) {
+  for (int i = 0; i < sizeof(allowedMacAddresses) / sizeof(allowedMacAddresses[0]); i++) {
+    if (macAddress.equalsIgnoreCase(allowedMacAddresses[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Configuração do WiFi
+const char* ssid = "IEEE_AP";  // SSID do ponto de acesso
+const char* password = "123456789";  // Senha do ponto de acesso
+
+// Variáveis do servidor e status do LED
+ESP8266WebServer server(80);
+
+bool LEDstatus = LOW;
+int luz = 5; // variável lâmpada
+int luz2 = 4;
+bool lampada_status = LOW;
+int conexao = 115200;
+
+// Função de configuração
+void setup() {
+  // Inicia Serial e LED
+  Serial.begin(conexao);
+  pinMode(luz2, OUTPUT);
+  pinMode(luz, OUTPUT);
+  Serial.println("Iniciando ponto de acesso...");
+
+  // Configura o NodeMCU como ponto de acesso
+  WiFi.softAP(ssid, password);
+  Serial.println("Ponto de Acesso Configurado");
+  Serial.print("IP do Ponto de Acesso: ");
+  Serial.println(WiFi.softAPIP());
+
+  // Configura Handles do Server e Inicia Server
+  server.on("/", handle_OnConnect);
+  server.on("/ledon", handle_ledon);
+  server.on("/ledoff", handle_ledoff);
+  server.on("/lampadaon", handle_lampadaon);
+  server.on("/lampadaoff", handle_lampadaoff);
+  server.onNotFound(handle_NotFound);
+  server.begin();
+  Serial.println("Servidor HTTP iniciado!");
+}
+
+// Função principal do loop
+void loop() {
+  // Processa requisições do cliente
+  server.handleClient();
+
+  // Verifica dispositivos conectados
+  struct station_info *stationList = wifi_softap_get_station_info();
+
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    Serial.print("Dispositivo conectado: ");
+    Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      Serial.println("Acesso permitido");
+    } else {
+      Serial.println("Acesso negado");
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+
+  // Libera a memória alocada para a lista de estações
+  wifi_softap_free_station_info();
+
+  // Aguarda um pouco antes de verificar novamente
+  delay(10);
+}
+
+// Funções de manipulação para o servidor HTTP
+void handle_OnConnect() {
+  
+  struct station_info *stationList = wifi_softap_get_station_info();
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    // Serial.print("Dispositivo conectado: "); 
+    // Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      //Serial.println("Acesso permitido");
+      server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+    } else {
+      Serial.println("Acesso negado");
+      server.send(403, "text/plain", "Acesso negado otario");
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+}
+
+void handle_ledon() {
+  struct station_info *stationList = wifi_softap_get_station_info();
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    //Serial.print("Dispositivo conectado: ");
+    //Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      Serial.println("Lampada Acesa");
+      LEDstatus = HIGH;
+      server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+    } else {
+      Serial.println("Lampada negada");
+      server.send(403, "text/plain", "Acesso negado otario");
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+}
+
+void handle_ledoff() {
+  struct station_info *stationList = wifi_softap_get_station_info();
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    //Serial.print("Dispositivo conectado: ");
+    //Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      Serial.println("Lampada Apagada");
+      LEDstatus = LOW;
+      server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+    } else {
+      Serial.println("Acesso negado");
+      server.send(403, "text/plain", "Acesso negado otário");
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+}
+
+void handle_lampadaon() {
+  struct station_info *stationList = wifi_softap_get_station_info();
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    //Serial.print("Dispositivo conectado: ");
+    //Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      Serial.println("Porta aberta");
+      lampada_status = HIGH;
+      server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+    } else {
+      Serial.println("Porta negada");
+      server.send(403, "text/plain", "Acesso negado otário");
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+}
+
+void handle_lampadaoff() {
+  struct station_info *stationList = wifi_softap_get_station_info();
+  while (stationList != NULL) {
+    String macAddress = String(stationList->bssid[0], HEX) + ":" +
+                        String(stationList->bssid[1], HEX) + ":" +
+                        String(stationList->bssid[2], HEX) + ":" +
+                        String(stationList->bssid[3], HEX) + ":" +
+                        String(stationList->bssid[4], HEX) + ":" +
+                        String(stationList->bssid[5], HEX);
+    macAddress.toUpperCase();
+    Serial.print("Dispositivo conectado: ");
+    Serial.println(macAddress);
+
+    if (isMacAddressAllowed(macAddress)) {
+      Serial.println("Porta Fechada");
+      lampada_status = LOW;
+      server.send(200, "text/html", SendHTML(LEDstatus, lampada_status));
+    } else {
+      Serial.println("Porta Negada");
+      server.send(403, "text/plain", "Acesso negado otário"); 
+    }
+    stationList = STAILQ_NEXT(stationList, next);
+  }
+}
+
+void handle_NotFound() {
+  server.send(404, "text/plain", "Not found");
+}
+
+// Função para gerar HTML
+String SendHTML(bool led, bool lampada) {
+  String ptr = "<!DOCTYPE html>\n";
+  ptr += "<html>\n";
+  ptr += "<head>\n";
+  ptr += "<style>\n";
+  ptr += "    body {\n";
+  ptr += "        font-family: Arial, sans-serif;\n";
+  ptr += "        background-color: #b9ffff;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "    }\n";
+  ptr += "    h1 {\n";
+  ptr += "        color: #333;\n";
+  ptr += "    }\n";
+  ptr += "    p {\n";
+  ptr += "        color: #666;\n";
+  ptr += "    }\n";
+  ptr += "    input[type='button'] {\n";
+  ptr += "        background-color: #086ca4;\n";
+  ptr += "        border: none;\n";
+  ptr += "        color: white;\n";
+  ptr += "        padding: 10px 20px;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "        text-decoration: none;\n";
+  ptr += "        display: inline-block;\n";
+  ptr += "        font-size: 16px;\n";
+  ptr += "        border-radius: 5px;\n";
+  ptr += "        margin: 10px;\n";
+  ptr += "    }\n";
+  ptr += "</style>\n";
+  ptr += "<title>Controle do LED</title>\n";
+  ptr += "</head>\n";
+  ptr += "<body>\n";
+  ptr += "<h1><img src='https://th.bing.com/th/id/OIP.K3it6ygEsOPHdB23WcRuEAHaCd?rs=1&pid=ImgDetMain'></h1>";
+  ptr += "<h1>Gerenciamento via IOT</h1>\n";
+  ptr += "<p>Botoes.</p>\n";
+  ptr += "<form method=\"get\">\n";
+  if (lampada)
+    ptr += "<input type=\"button\" value=\"APAGAR LAMPADA\" onclick=\"window.location.href='/lampadaoff'\">\n";
+  else
+    ptr += "<input type=\"button\" value=\"ACENDER LAMPADA\" onclick=\"window.location.href='/lampadaon'\">\n";
+  if (led)
+    ptr += "<input type=\"button\" value=\"ABRIR PORTA\" onclick=\"window.location.href='/ledoff'\">\n";
+  else
+    ptr += "<input type=\"button\" value=\"FECHAR PORTA\" onclick=\"window.location.href='/ledon'\">\n";
+  ptr += "</form>\n";
+  ptr += "</body>\n";
+  ptr += "</html>\n";
+  return ptr;
+}
