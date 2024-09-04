@@ -1,6 +1,7 @@
 # Iot do Ramo Estudantil IEEE
 
-## Esse é um projeto que mostra todas as etapas da implantação do sistema IOT no Ramo Estudantil IEEE-UFJF. O objetivo principal dele é modernizar nosso ramo, possibilitando uma acessibilidade maior da sala, além de servir de exemplo para outros grupos realizarem o mesmo.
+## Objetivo:
+Esse é um projeto que mostra todas as etapas da implantação do sistema IOT no Ramo Estudantil IEEE-UFJF. O objetivo principal dele é modernizar nosso ramo, possibilitando uma acessibilidade maior da sala, além de servir de exemplo para outros grupos realizarem o mesmo.
 
 _____________________________________________________________________________________________________________________________________
 
