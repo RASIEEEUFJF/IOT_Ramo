@@ -1,0 +1,142 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+//ajeitar o botao
+
+// Configuração do WiFi
+const char* ssid = "IEEE_AP";  // SSID do ponto de acesso
+const char* password = "123456789";  // Senha do ponto de acesso
+
+// Variáveis de Server e Status do LED
+ESP8266WebServer server(80); 
+
+int conexao = 115200;
+int lampada = 5; // d1 variável lâmpada
+int porta = 4; // d2 variável porta
+int botao_porta = 14; // d5
+int botao_lampada = 12; // d6
+bool lampada_status = LOW;
+bool porta_status = LOW;
+
+void setup() {
+  // Inicia Serial e LED
+  Serial.begin(conexao);
+  pinMode(porta, OUTPUT);
+  pinMode(lampada, OUTPUT); 
+  pinMode(botao_porta, INPUT_PULLUP); 
+  pinMode(botao_lampada, INPUT_PULLUP); 
+  Serial.println("Iniciando ponto de acesso...");
+  
+  // Configura o NodeMCU como ponto de acesso
+  WiFi.softAP(ssid, password);
+  Serial.println("Ponto de Acesso Configurado");
+  Serial.print("IP do Ponto de Acesso: ");
+  Serial.println(WiFi.softAPIP());
+
+  // Configura Handles do Server e Inicia Server
+  server.on("/", handle_OnConnect);
+  server.on("/portaon", handle_portaon);
+  server.on("/portaoff", handle_portaoff);
+  server.on("/lampadaon", handle_lampadaon);
+  server.on("/lampadaoff", handle_lampadaoff);  
+  server.onNotFound(handle_NotFound);
+  server.begin();
+  Serial.println("Servidor HTTP iniciado!");
+}
+
+void loop() {
+  // Verifica dispositivos conectados
+  server.handleClient();
+ if (botao_porta == LOW){
+    Serial.println("botao pressionado");
+  }
+  else {
+    Serial.println("botao nao pressionado");
+  }
+
+  delay(100);
+}
+
+// FUNÇÕES HANDLE PARA HTML SERVER
+
+void handle_OnConnect() {
+  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+}
+
+void handle_portaon() {
+  porta_status = HIGH;
+  digitalWrite(porta, HIGH);
+  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+}
+
+void handle_portaoff() {
+  porta_status = LOW;
+  digitalWrite(porta, LOW);
+  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+}
+
+void handle_lampadaon() {
+  lampada_status = HIGH;
+  digitalWrite(lampada, lampada_status);
+  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+}
+
+void handle_lampadaoff() {
+  lampada_status = LOW;
+  digitalWrite(lampada, lampada_status);
+  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+}
+
+void handle_NotFound() {
+  server.send(404, "text/plain", "Not found");
+}
+
+// Aqui estamos montando um site como uma string que ficará armazenado no IP do Roteador que conectamos.
+String SendHTML(bool porta, bool lampada) {
+  String ptr = "<!DOCTYPE html>\n";
+  ptr += "<html>\n";
+  ptr += "<head>\n";
+  ptr += "<style>\n";
+  ptr += "    body {\n";
+  ptr += "        font-family: Arial, sans-serif;\n";
+  ptr += "        background-color: #b9ffff;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "    }\n";
+  ptr += "    h1 {\n";
+  ptr += "        color: #333;\n";
+  ptr += "    }\n";
+  ptr += "    p {\n";
+  ptr += "        color: #666;\n";
+  ptr += "    }\n";
+  ptr += "    input[type='button'] {\n";
+  ptr += "        background-color: #086ca4;\n";
+  ptr += "        border: none;\n";
+  ptr += "        color: white;\n";
+  ptr += "        padding: 10px 20px;\n";
+  ptr += "        text-align: center;\n";
+  ptr += "        text-decoration: none;\n";
+  ptr += "        display: inline-block;\n";
+  ptr += "        font-size: 16px;\n";
+  ptr += "        border-radius: 5px;\n";
+  ptr += "        margin: 10px;\n";
+  ptr += "    }\n";
+  ptr += "</style>\n";
+  ptr += "<title>Controle do LED</title>\n";
+  ptr += "</head>\n";
+  ptr += "<body>\n";
+  ptr += "<h1><img src='https://th.bing.com/th/id/OIP.K3it6ygEsOPHdB23WcRuEAHaCd?rs=1&pid=ImgDetMain'></h1>";
+  ptr += "<h1>Gerenciamento via IOT</h1>\n";
+  ptr += "<p>Botoes.</p>\n";
+  ptr += "<form method=\"get\">\n";
+  if (lampada)
+    ptr += "<input type=\"button\" value=\"APAGAR LAMPADA\" onclick=\"window.location.href='/lampadaoff'\">\n";
+  else
+    ptr += "<input type=\"button\" value=\"ACENDER LAMPADA\" onclick=\"window.location.href='/lampadaon'\">\n";
+  if (porta)
+    ptr += "<input type=\"button\" value=\"FECHAR PORTA\" onclick=\"window.location.href='/portaoff'\">\n";
+  else
+    ptr += "<input type=\"button\" value=\"ABRIR PORTA\" onclick=\"window.location.href='/portaon'\">\n";
+  ptr += "</form>\n";
+  ptr += "</body>\n";
+  ptr += "</html>\n";
+  return ptr;
+}
