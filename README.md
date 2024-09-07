@@ -44,4 +44,7 @@ No dia 27 de junho voltamos a manutenção a respeito do processo, foi observado
 ### Teste 18 de julho
 No dia 18 de julho, foi criado o código base para acionar a fechadura. Com a fechadura em mãos, foram feitas as ligações necessárias utilizando arduino, ponte h, jumpers e a fonte de alimentação. Também se teve avanço na criação do site. Foi interessante observar que os métodos utilizados não entregou 12V a fechadura, assim, ela não acionava. Para resolver esse problema foi colocado uma fase na porta 5 do ESP (por meio da ponte H) e o terra foi conectado direto na fonte, evitando a passagem no capacitor o que aumentou a tensão obtida. No entanto não chegamos ao valor esperado de 12V, mesmo assim, a fechadura aciona, uma vez que a potência é a esperada.
 
+### Teste 06 de setembro
+
+No dia 6 de setembro, finalizamos os detalhes para o código "simples" da porta apenas com o sistema de segurança da senha do wifi do esp8266. Adicionamos os leds, buzzer e  botões para controle no físico da tranca e da lampada do ramo além de ajeitarmos alguns detalhes estéticos do site. Para as próximas reuniões agora só temos que instalar o circuito na porta para que ela funcione num primeiro instante dessa maneira temporária. Depois passaremos a estudar como aplicar um modelo mais eficiente de segunrança.
 __________________________________________________________________________________________________________________________________________________________________________________
