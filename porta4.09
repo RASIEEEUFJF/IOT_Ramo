@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-//ajeitar o botao
 
 // Configuração do WiFi
 const char* ssid = "IEEE_AP";  // SSID do ponto de acesso
@@ -14,6 +13,8 @@ int lampada = 5; // d1 variável lâmpada
 int porta = 4; // d2 variável porta
 int botao_porta = 14; // d5
 int botao_lampada = 12; // d6
+int buzzer = 13; //d7
+int led_conexao = 15; //d8
 bool lampada_status = LOW;
 bool porta_status = LOW;
 
@@ -24,9 +25,23 @@ void setup() {
   pinMode(lampada, OUTPUT); 
   pinMode(botao_porta, INPUT_PULLUP); 
   pinMode(botao_lampada, INPUT_PULLUP); 
+  pinMode(led_conexao, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   Serial.println("Iniciando ponto de acesso...");
   
   // Configura o NodeMCU como ponto de acesso
+  digitalWrite(buzzer, HIGH);
+  delay(100);
+   digitalWrite(buzzer, LOW);
+  delay(100);
+   digitalWrite(buzzer, HIGH);
+  delay(100);
+   digitalWrite(buzzer, LOW);
+  delay(100);
+   digitalWrite(buzzer, HIGH);
+  delay(100);
+   digitalWrite(buzzer, LOW);
+  delay(100);
   WiFi.softAP(ssid, password);
   Serial.println("Ponto de Acesso Configurado");
   Serial.print("IP do Ponto de Acesso: ");
@@ -36,7 +51,7 @@ void setup() {
   server.on("/", handle_OnConnect);
   server.on("/portaon", handle_portaon);
   server.on("/portaoff", handle_portaoff);
-  server.on("/lampadaon", handle_lampadaon);
+  server.on("/lampadaon",  handle_lampadaon);
   server.on("/lampadaoff", handle_lampadaoff);  
   server.onNotFound(handle_NotFound);
   server.begin();
@@ -46,15 +61,18 @@ void setup() {
 void loop() {
   // Verifica dispositivos conectados
   server.handleClient();
- if (botao_porta == LOW){
-    Serial.println("botao pressionado");
+ if (digitalRead (14) == LOW){
+  handle_portaon();
   }
-  else {
-    Serial.println("botao nao pressionado");
+  if ((digitalRead (12) == LOW)&&(lampada_status==LOW)){
+    handle_lampadaon();}
+  if ((digitalRead (12) == LOW)&&(lampada_status==HIGH)){
+    handle_lampadaoff();
+   
+  }
   }
 
-  delay(100);
-}
+
 
 // FUNÇÕES HANDLE PARA HTML SERVER
 
@@ -64,16 +82,19 @@ void handle_OnConnect() {
 
 void handle_portaon() {
   porta_status = HIGH;
-  digitalWrite(porta, HIGH);
-  server.send(200, "text/html", SendHTML(porta_status, lampada_status));
+   digitalWrite(buzzer, HIGH);
+   delay(100);
+   digitalWrite(buzzer, LOW);
+  digitalWrite(porta, porta_status);
+  delay(5000);  
+  handle_portaoff();
 }
 
 void handle_portaoff() {
   porta_status = LOW;
-  digitalWrite(porta, LOW);
+  digitalWrite(porta, porta_status);
   server.send(200, "text/html", SendHTML(porta_status, lampada_status));
 }
-
 void handle_lampadaon() {
   lampada_status = HIGH;
   digitalWrite(lampada, lampada_status);
@@ -88,6 +109,7 @@ void handle_lampadaoff() {
 
 void handle_NotFound() {
   server.send(404, "text/plain", "Not found");
+  digitalWrite(led_conexao, HIGH);
 }
 
 // Aqui estamos montando um site como uma string que ficará armazenado no IP do Roteador que conectamos.
@@ -100,6 +122,7 @@ String SendHTML(bool porta, bool lampada) {
   ptr += "        font-family: Arial, sans-serif;\n";
   ptr += "        background-color: #b9ffff;\n";
   ptr += "        text-align: center;\n";
+  ptr += "        font-size: 40px;\n";
   ptr += "    }\n";
   ptr += "    h1 {\n";
   ptr += "        color: #333;\n";
@@ -111,13 +134,15 @@ String SendHTML(bool porta, bool lampada) {
   ptr += "        background-color: #086ca4;\n";
   ptr += "        border: none;\n";
   ptr += "        color: white;\n";
-  ptr += "        padding: 10px 20px;\n";
+  ptr += "        padding: 40px 0;\n"; // Aumenta o padding para botões maiores
   ptr += "        text-align: center;\n";
   ptr += "        text-decoration: none;\n";
-  ptr += "        display: inline-block;\n";
-  ptr += "        font-size: 16px;\n";
+  ptr += "        display: block;\n"; // Faz com que os botões sejam exibidos como blocos
+  ptr += "        font-size: 50px;\n"; // Aumenta o tamanho da fonte
   ptr += "        border-radius: 5px;\n";
-  ptr += "        margin: 10px;\n";
+  ptr += "        margin: 20px auto;\n"; // Centraliza os botões e adiciona margem
+  ptr += "        width: 90%;\n"; // Define a largura dos botões para 90% da tela
+  ptr += "        height: 200px;\n"; // Define a altura dos botões para 200px
   ptr += "    }\n";
   ptr += "</style>\n";
   ptr += "<title>Controle do LED</title>\n";
@@ -138,5 +163,6 @@ String SendHTML(bool porta, bool lampada) {
   ptr += "</form>\n";
   ptr += "</body>\n";
   ptr += "</html>\n";
+  //Serial.println(ptr); // Adiciona depuração para verificar o HTML gerado
   return ptr;
 }
