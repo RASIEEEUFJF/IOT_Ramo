@@ -47,4 +47,21 @@ No dia 18 de julho, foi criado o código base para acionar a fechadura. Com a fe
 ### Teste 06 de setembro
 
 No dia 6 de setembro, finalizamos os detalhes para o código "simples" da porta apenas com o sistema de segurança da senha do wifi do esp8266. Adicionamos os leds, buzzer e  botões para controle no físico da tranca e da lampada do ramo além de ajeitarmos alguns detalhes estéticos do site. Para as próximas reuniões agora só temos que instalar o circuito na porta para que ela funcione num primeiro instante dessa maneira temporária. Depois passaremos a estudar como aplicar um modelo mais eficiente de segunrança.
+
+### 27 de Janeiro de 2025
+
+Teste de Código com Dois ESPs
+Na tarde de hoje, demos início ao teste de um código utilizando dois ESPs, com o objetivo de implantar no nosso projeto IoT. Para isso, focamos na inclusão de novas bibliotecas no computador do grupo, permitindo que todos os membros possam realizar testes e evoluções, mesmo fora das reuniões.
+
+Bibliotecas Utilizadas
+ESP-NOW: Esta biblioteca foi adicionada ao projeto, porém ainda não está funcionando perfeitamente e requer ajustes adicionais.
+
+ESP8266WiFi: Também foi integrada ao sistema, possibilitando a conexão com redes Wi-Fi.
+
+Próximos Passos:
+Resolver os problemas identificados na biblioteca ESP-NOW para garantir seu funcionamento correto.
+
+Realizar testes adicionais com os ESPs para validar a implementação do código.
+
+Incentivar todos os membros a utilizar o computador do grupo para continuar os testes e fazer evoluções fora do horário das reuniões.
 __________________________________________________________________________________________________________________________________________________________________________________
