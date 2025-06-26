@@ -1,3 +1,12 @@
+/*----------------------------------------------------------------------------------------------------------------------------------------
+Código mais atualizado da porta e que roda na segurança simples apenas com a senha do wifi do esp.
+Código funcionando e sendo utilizado no período desde de a implantação da porta até o momento atual (25/06/2025)
+----------------------------------------------------------------------------------------------------------------------------------------*/
+
+
+
+
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
